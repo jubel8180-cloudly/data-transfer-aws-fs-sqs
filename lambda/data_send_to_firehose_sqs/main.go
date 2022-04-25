@@ -10,7 +10,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-		
+
 )
 
 // global variable
@@ -39,6 +39,15 @@ type Configuration struct {
 	DeadLetterQueueName string
 }
 
+type JsonEvents []JsonEvent
+
+type JsonEvent struct {
+	AppID     string `json:"app_id"`
+	DeviceID  string `json:"device_id"`
+	RequestID string `json:"request_id"`
+}
+
+
 // This is simple response function to make a client back response.
 func makeResponse(body string, headers Headers, status_code int) MyResponse {
 	response := MyResponse{
@@ -50,6 +59,8 @@ func makeResponse(body string, headers Headers, status_code int) MyResponse {
 	return response
 }
 
+
+
 // this is simple logger function which will log to the cloudwatch
 func Logger(status string, success bool, messageBody string) {
 	log.Printf("STATUS: %s", status)
@@ -58,7 +69,7 @@ func Logger(status string, success bool, messageBody string) {
 }
 
 func isConditionFlagAvailable(jsonData  map[string]interface{},alb_event events.ALBTargetGroupRequest,mainConfig Configuration) (string, int, bool, map[string]interface{}){
-	
+
 	var conditionJson map[string]interface{} = nil
 
 
@@ -145,6 +156,7 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 	}
 
 	flagValue = strings.ToUpper(fmt.Sprintf("%v", conditionJson["flag"]))
+
 
 	if flagValue == "A" {
 		return firehoseHandler(mainConfig, alb_event)
