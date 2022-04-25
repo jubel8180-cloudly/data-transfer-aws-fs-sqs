@@ -16,7 +16,9 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 ## AWS Configuration Setup Instruction using terraform
     - Initial Configuration
       - Please install AWS cli
+        ~ url: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
       - Install terraform
+        ~ url: https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started
     - Add credential in AWS cli
       # provide your aws access key and secret key
       $ aws configure
@@ -29,9 +31,6 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       - then go to dev folder
       $ cd terraform/dev
 
-      # initialized the terraform
-      $ terraform init
-
       # check any configuration is write or wrong
       $ terraform plan
 
@@ -40,17 +39,25 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       - After applying terraform, you need to provide input.
          - s3 bucket name (name must be camel case or multiple word will be add with dash(-))
 
+         - Next terraform will ask you about aws changes. yes or no ?
+          - please provide yes
+
      - After that every setup will be done for this project.
 
+     # Now you can show the all created service name using this command
+     $ terraform output
+
+## Remember [Note]:
+  - We used the region “ap-south-1”. So, every AWS feature will be available in this region.
+  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/dev directory and change the region and others name.
 
 
 ## Test the full project
-- Now go to the application load balancer.
-- Copy the url link
+- Now go to the application load balancer and copy the load balancer dns link
+or you can copy load balancer dns link from the terminal after providing command [$ terraform output]
 - now test the code and check the requirements
-
   - copy the url and provide condition in payload "flag": "A" for firehose or "flag": "Y" for sqs
-  - POST: lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
+  - POST: Url link like, lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
   - provide json data in Body
 
 
@@ -108,12 +115,11 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
     "flag": "Y"
     },
     "records": {
-        messageId: '19dd0b57-b21e-4ac1-bd88-01bbb068cb78',
-        receiptHandle: 'MessageReceiptHandle',
-        "body": "Hello from SQS!",
-        attributes: {
-            ApproximateReceiveCount: '1',
-            SenderId: '012345678910'
+        "body": "All provider data collected successfully",
+        "attributes": {
+            "status": "success",
+            "provider": "dynata"
+
         }
     }
 
