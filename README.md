@@ -7,7 +7,7 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 
 ### Workflow
 1. Create a application load balancer
-2. Trigger a aws lambda function 
+2. Trigger a aws lambda function
 3. Add a flag type A and type Y in payload condition
 4. If flag type A call aws kinesis firehose and write data to aws s3
 5. If flag type Y send message to aws sqs
@@ -16,21 +16,20 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 ## AWS Configuration Setup Instruction using terraform
     - Initial Configuration
       - Please install AWS cli
+        ~ url: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
       - Install terraform
+        ~ url: https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started
     - Add credential in AWS cli
       # provide your aws access key and secret key
       $ aws configure
       - provide access key
       - provide secret key
-    
 
-    - Apply terraform functionality 
+
+    - Apply terraform functionality
       - go to the terraform folder
       - then go to dev folder
       $ cd terraform/dev
-      
-      # initialized the terraform
-      $ terraform init
 
       # check any configuration is write or wrong
       $ terraform plan
@@ -40,17 +39,25 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       - After applying terraform, you need to provide input.
          - s3 bucket name (name must be camel case or multiple word will be add with dash(-))
 
+         - Next terraform will ask you about aws changes. yes or no ?
+          - please provide yes
+
      - After that every setup will be done for this project.
-     
+
+     # Now you can show the all created service name using this command
+     $ terraform output
+
+## Remember [Note]:
+  - We used the region “ap-south-1”. So, every AWS feature will be available in this region.
+  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/dev directory and change the region and others name.
 
 
 ## Test the full project
-- Now go to the application load balancer. 
-- Copy the url link
+- Now go to the application load balancer and copy the load balancer dns link
+or you can copy load balancer dns link from the terminal after providing command [$ terraform output]
 - now test the code and check the requirements
-
   - copy the url and provide condition in payload "flag": "A" for firehose or "flag": "Y" for sqs
-  - POST: lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
+  - POST: Url link like, lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
   - provide json data in Body
 
 
@@ -66,18 +73,34 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
   },
   "records": [
     {
-      "title": "E sign save as template process 2017 1",
-      "desc": "",
-      "signers": [
-        {
-          "name": "Chris Ward",
-          "email": "office@dragonsdesign.co.uk"
-        },
-        {
-          "name": "Sandra Norris",
-          "email": "office12@dragonsdesign.co.uk"
-        }
-      ]
+      "app_id":"app_1",
+      "device_id":"608d99c2-9ff2-40a1-9ab5-8ee97861ccb2",
+      "request_id":"19cc1f31-2a2e-4897-a8fd-a8dddf7a8e56"
+    },
+    {
+      "app_id":"app_2",
+      "device_id":"7d4586f0-e73f-49f0-ba9d-1b66f5413580",
+      "request_id":"21805093-e285-40ed-b2c8-d0c7164f7953    "
+    }
+    ,{
+      "app_id":"app_2",
+      "device_id":"11fd3383-11f8-47f9-a110-37e2e409fdc9",
+      "request_id":"f86b8e64-bc5f-4486-96ba-5792dc1836fd"
+    },
+    {
+      "app_id":"app_1",
+      "device_id":"887e6f18-2850-44df-a896-183403f94a63",
+      "request_id":"d24c7916-fdf9-4275-8eac-926c16188615"
+    },
+    {
+      "app_id":"app_1",
+      "device_id":"07e140fa-ebb1-485f-848e-ab8d743f5788",
+      "request_id":"4ed50b8b-5b47-4a62-a63a-2df073a3e602"
+    },
+    {
+      "app_id":"app_2",
+      "device_id":"83962919-5fbf-4790-8f17-ceeef6e11b4b",
+      "request_id":"f77e8c6e-4852-47ec-b52a-786f1816a617"
     }
   ]
 }
@@ -92,20 +115,19 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
     "flag": "Y"
     },
     "records": {
-        messageId: '19dd0b57-b21e-4ac1-bd88-01bbb068cb78',
-        receiptHandle: 'MessageReceiptHandle',
-        "body": "Hello from SQS!",
-        attributes: {
-            ApproximateReceiveCount: '1',
-            SenderId: '012345678910'
+        "body": "All provider data collected successfully",
+        "attributes": {
+            "status": "success",
+            "provider": "dynata"
+
         }
     }
-    
+
 }
 
 ```
 
-## lambda function development process: 
+## lambda function development process:
 
 ```
 - go to the lambda directory
@@ -120,10 +142,11 @@ $ go mod tidy
 go build -o {a file name}
 go build -o main
 
-# optional: 
+# optional:
   - Zip file will create automatically using terraform.
-  - However, Make zip file for uploading as lambda function in aws manually. 
+  - However, Make zip file for uploading as lambda function in aws manually.
   - zip main.zip main
 
 ```
-                  
+
+

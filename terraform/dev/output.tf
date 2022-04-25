@@ -15,7 +15,7 @@ output "delivery_stream" {
   value = var.delivery_stream_name
 }
 
-output "dead_letter_queue_name" {
+output "sqs_dead_letter_queue_name" {
   value = var.dead_letter_queue_name
 }
 
@@ -33,4 +33,9 @@ output "account_id" {
 output "load_balancer_name" {
   value = var.load_balancer_name
 }
+
+output "load_balncer_dns_url"{
+  value = module.my_ec2.aws_lb_dns_name
+}
+
 
