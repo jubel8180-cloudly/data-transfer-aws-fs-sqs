@@ -18,7 +18,10 @@ build-l1:
 build-l2:
 	cd lambda/receive_msg_from_dlq && go build -o main
 
-build-all: build-l1 build-l2
+build-l3:
+	cd lambda/kinesis_lambda_processor && go build -o main
+
+build-all: build-l1 build-l2 build-l3
 
 
 

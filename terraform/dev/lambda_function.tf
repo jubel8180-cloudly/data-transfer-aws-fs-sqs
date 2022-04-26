@@ -60,6 +60,29 @@ resource "aws_lambda_function" "receive_msg_from_dlq" {
 
 }
 
+data "archive_file" "kinesis_lambda_processor" {
+  type        = "zip"
+  source_file = "${path.module}./../lambda/kinesis_lambda_processor/main"
+  output_path = "${path.module}./../lambda/kinesis_lambda_processor/main.zip"
+}
+
+# this lambda function for receiving event from dead letter queue
+resource "aws_lambda_function" "kinesis_lambda_processor" {
+
+  filename      = "${path.module}./../lambda/kinesis_lambda_processor/main.zip"
+  function_name = "${var.kinesis_processor_lambda_function_name}"
+  role          = aws_iam_role.lambda_firehsoe_s3_role.arn
+  handler       = "main"
+
+  # source_code_hash = filebase64sha256("${path.module}./../lambda/receive_msg_from_dlq/main.zip")
+  source_code_hash = "${data.archive_file.kinesis_lambda_processor.output_base64sha256}"
+
+
+  runtime = "go1.x"
+
+
+}
+
 
 
 

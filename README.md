@@ -57,7 +57,7 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 or you can copy load balancer dns link from the terminal after providing command [$ terraform output]
 - now test the code and check the requirements
   - copy the url and provide condition in payload "flag": "A" for firehose or "flag": "Y" for sqs
-  - POST: Url link like, lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
+  - POST: Url link like, lb-firehose-sqs-dev-1432623056.ap-south-1.elb.amazonaws.com
   - provide json data in Body
 
 
@@ -65,7 +65,7 @@ or you can copy load balancer dns link from the terminal after providing command
 ******** Test Firehose Data Transfer ********
 
 - Sample Input Data for kinesis firehose
-- POST: lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
+- POST: lb-firehose-sqs-dev-1432623056.ap-south-1.elb.amazonaws.com
 
 {
   "condition": {
@@ -107,7 +107,7 @@ or you can copy load balancer dns link from the terminal after providing command
 
 ******** Test Send Message to SQS ********
 
-- POST: lb-firehose-sqs-dev-264299050.ap-south-1.elb.amazonaws.com
+- POST: lb-firehose-sqs-dev-1432623056.ap-south-1.elb.amazonaws.com
 - Sample Input Data for sqs
 
 {
@@ -122,7 +122,6 @@ or you can copy load balancer dns link from the terminal after providing command
 
         }
     }
-
 }
 
 ```
@@ -132,7 +131,7 @@ or you can copy load balancer dns link from the terminal after providing command
 ```
 - go to the lambda directory
 - different lambda function available in different directory
-- go the the specific directory
+- go to the specific directory
 
 # execute these go commands to build go executable file
 

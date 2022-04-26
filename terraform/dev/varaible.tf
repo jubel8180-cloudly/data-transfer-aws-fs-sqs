@@ -2,7 +2,7 @@
 variable "bucket_name" {
   type = string
   description = "Please provide the s3 bucket name"
-  
+
 }
 
 variable "region"{
@@ -10,11 +10,11 @@ variable "region"{
   description = "Please provide region name"
 }
 
-variable "sqs_fs_lambda_function_name" {  
+variable "sqs_fs_lambda_function_name" {
   default = "send_data_to_firehose_or_sqs"
 }
 
-variable "receive_dlq_lambda_function_name" {  
+variable "receive_dlq_lambda_function_name" {
   default = "receive_message_from_dlq"
 }
 
@@ -34,4 +34,7 @@ variable "load_balancer_name" {
 
 variable "development_environment" {
   default = "dev"
+}
+variable "kinesis_processor_lambda_function_name" {
+  default = "firehose_data_processor"
 }
