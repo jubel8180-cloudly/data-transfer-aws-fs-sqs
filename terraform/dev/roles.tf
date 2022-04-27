@@ -18,7 +18,7 @@ resource "aws_iam_role" "lambda_firehsoe_s3_role" {
     ]
   })
 
- 
+
 }
 
 # creating s3 bucket policiy
@@ -41,6 +41,16 @@ resource "aws_iam_policy" "policy" {
                 "arn:aws:s3:::${var.bucket_name}",
                 "arn:aws:s3:::${var.bucket_name}/*"
             ]
+        },
+        {
+           "Effect": "Allow",
+           "Action": [
+               "lambda:InvokeFunction",
+               "lambda:GetFunctionConfiguration"
+           ],
+           "Resource": [
+               "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${var.kinesis_processor_lambda_function_name}:$LATEST"
+           ]
         }
     ]
 }
@@ -59,19 +69,19 @@ resource "aws_iam_role_policy_attachment" "s3_attach" {
 resource "aws_iam_role_policy_attachment" "sqs_execution_role" {
   role       = aws_iam_role.lambda_firehsoe_s3_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
-} 
- 
+}
+
 # attach firehose default policy to lambda role
 resource "aws_iam_role_policy_attachment" "kinesis_firehos_execution_role" {
   role       = aws_iam_role.lambda_firehsoe_s3_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess"
-} 
+}
 
 # attach default cloudwach policy to lambda role
 resource "aws_iam_role_policy_attachment" "cloudwatch_execution_role" {
   role       = aws_iam_role.lambda_firehsoe_s3_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
-} 
+}
 
 # create firehose role for creating a firehose
 resource "aws_iam_role" "firehose_role" {
@@ -100,3 +110,5 @@ resource "aws_iam_role_policy_attachment" "s3_attach_firehose" {
   policy_arn = aws_iam_policy.policy.arn
   depends_on = [aws_iam_policy.policy]
 }
+
+

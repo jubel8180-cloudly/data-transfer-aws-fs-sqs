@@ -4,7 +4,7 @@ output "region"{
 }
 
 output "lambda_function_names" {
-  value = [var.sqs_fs_lambda_function_name,var.receive_dlq_lambda_function_name]
+  value = [var.sqs_fs_lambda_function_name,var.receive_dlq_lambda_function_name,var.kinesis_processor_lambda_function_name]
 }
 
 output "s3_bucket_name"{

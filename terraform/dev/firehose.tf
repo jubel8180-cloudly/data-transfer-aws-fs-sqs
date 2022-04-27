@@ -11,8 +11,8 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     buffer_size        = 64
     buffer_interval    = 60
     # prefix = "kinesis_firehose_data/!{timestamp:yyyy}-!{timestamp:MM}-!{timestamp:dd}-!{timestamp:HH}/"
-    prefix = "kinesis_firehose_data/!{partitionKeyFromQuery:app_id}/"
-    error_output_prefix = "kinesis_firehose_error_data/!{firehose:random-string}/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/"
+    prefix = "kinesis_firehose_data/!{partitionKeyFromLambda:app_id}/"
+    error_output_prefix = "kinesis_firehose_error_data/!{firehose:random-string}/!{firehose:error-output-type}/!{timestamp:yyyy}-!{timestamp:MM}-!{timestamp:dd}-!{timestamp:HH}/"
 
 
     dynamic_partitioning_configuration{
@@ -22,29 +22,18 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     processing_configuration {
       enabled = "true"
 
-      # Multi-record deaggregation processor example
       processors {
-        type = "RecordDeAggregation"
+        type = "Lambda"
+
         parameters {
-          parameter_name  = "SubRecordType"
-          parameter_value = "JSON"
+          parameter_name  = "LambdaArn"
+          parameter_value = "${aws_lambda_function.kinesis_lambda_processor.arn}:$LATEST"
         }
       }
-
-       processors {
-        type = "MetadataExtraction"
-        parameters {
-          parameter_name  = "JsonParsingEngine"
-          parameter_value = "JQ-1.6"
-        }
-        parameters {
-          parameter_name  = "MetadataExtractionQuery"
-          parameter_value = "{app_id:.app_id}"
-        }
-      }
-
-
     }
-  }
 
+
+  }
 }
+
+
