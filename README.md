@@ -25,7 +25,14 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       - provide access key
       - provide secret key
 
-
+    - Need to configure first in Terraform
+      - Please go to the terraform/dev folder
+      - go to the terraform.tfvars file and change some variable name
+        - region = "please provide the region where you want to configure"
+        - ingress_cidr_blocks = "Please provide your public ip address where from you can access application load balancer"
+          - for example:
+            # ingress_cidr_blocks = ["your_public_ip_1/32","your_public_ip_2/32"]
+            - ingress_cidr_blocks = ["37.111.201.253/32","27.147.201.239/32"]
     - Apply terraform functionality
       - go to the terraform folder
       - then go to dev folder
@@ -34,7 +41,7 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       # check any configuration is write or wrong
       $ terraform plan
 
-      # deploy all configuration
+      # Now deploy all configuration using this apply command
       $ terraform apply
       - After applying terraform, you need to provide input.
          - s3 bucket name (name must be camel case or multiple word will be add with dash(-))
@@ -42,14 +49,23 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
          - Next terraform will ask you about aws changes. yes or no ?
           - please provide yes
 
-     - After that every setup will be done for this project.
+         - After that every setup will be done for this project.
 
-     # Now you can show the all created service name using this command
+      Or you can apply terraform command with bucket name like,
+        # terraform apply -var="bucket_name=your-bucket-name"
+        $ terraform apply -var="bucket_name=new-firehose-data-storage"
+
+        - Next terraform will ask you about aws changes. yes or no ?
+          - please provide yes
+
+         - After that every setup will be done for this project.
+
+     # Now you can show the all created services name using this command
      $ terraform output
 
 ## Remember [Note]:
   - We used the region “ap-south-1”. So, every AWS feature will be available in this region.
-  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/dev directory and change the region and others name.
+  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/dev directory and change the region and others service name.
 
 
 ## Test the full project
