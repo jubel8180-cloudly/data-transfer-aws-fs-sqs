@@ -38,3 +38,9 @@ variable "development_environment" {
 variable "kinesis_processor_lambda_function_name" {
   default = "firehose_data_processor"
 }
+
+variable "ingress_cidr_blocks" {
+  description = "List of IPv4 CIDR ranges to use on all ingress rules"
+  type        = list(string)
+  default     = []
+}
