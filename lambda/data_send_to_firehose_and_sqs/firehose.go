@@ -96,7 +96,7 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 
 		log.Printf("event body unmarshal error: %v", err)
 
-		return makeResponse("Event Data format error. However, send message to Dead letter queue successfully delivered.", headers, 400), nil
+		return makeResponse("Event Data format error. However, send message to Dead letter queue successfully delivered.", headers, 200), nil
 
 	}
 
@@ -119,7 +119,7 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 
 		}
 
-		return makeResponse("Event Data format error. However, send message to Dead letter queue successfully delivered.", headers, 400), nil
+		return makeResponse("Event Data format error. However, send message to Dead letter queue successfully delivered.", headers, 200), nil
 
 	}
 
@@ -147,7 +147,7 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 			return makeResponse("Json Data format error as well as Dead letter queue send error", headers, 400), nil
 		}
 
-		return makeResponse("Data send error to firehose. However, send message to Dead letter queue successfully delivered.", headers, 400), nil
+		return makeResponse("Data send error to firehose. However, send message to Dead letter queue successfully delivered.", headers, 200), nil
 	}
 
 	log.Println("Firehose Data Transfer and File created successfully")

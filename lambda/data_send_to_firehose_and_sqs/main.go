@@ -16,27 +16,21 @@ import (
 // global variable
 var region string
 var flagValue string = ""
+var headers map[string]string
 
-var headers Headers
-
-// this is header setup for response
-type Headers struct {
-	ContentType string `json:"Content-Type"`
-}
-
-type LogMessage struct{
+type LogMessage struct {
 	Message string
-	Error string
-	Status bool
-	Event string
+	Error   string
+	Status  bool
+	Event   string
 }
 
 // this is the response representation
 type MyResponse struct {
-	Body            string  `json:"body"`
-	IsBase64Encoded bool    `json:"isBase64Encoded"`
-	StatusCode      int     `json:"statusCode"`
-	Header          Headers `json:"headers"`
+	Body            string            `json:"body"`
+	IsBase64Encoded bool              `json:"isBase64Encoded"`
+	StatusCode      int               `json:"statusCode"`
+	Headers         map[string]string `json:"headers"`
 }
 
 // we will take configuration from environment
@@ -54,19 +48,26 @@ type JsonEvent struct {
 	RequestID string `json:"request_id"`
 }
 
-
 // This is simple response function to make a client back response.
-func makeResponse(body string, headers Headers, status_code int) MyResponse {
+func makeResponse(body string, headers map[string]string, status_code int) MyResponse {
+	success := false
+	if status_code == 200 {
+		success = true
+	}
+	data := map[string]interface{}{
+		"success": success,
+		"msg":     body,
+	}
+	result, _ := json.Marshal(data)
+
 	response := MyResponse{
-		Body:            body,
+		Body:            string(result),
 		IsBase64Encoded: false,
 		StatusCode:      status_code,
-		Header:          headers,
+		Headers:         headers,
 	}
 	return response
 }
-
-
 
 // this is simple logger function which will log to the cloudwatch
 func Logger(status string, success bool, messageBody string) {
@@ -75,27 +76,26 @@ func Logger(status string, success bool, messageBody string) {
 	log.Printf("MESSAGE: %s", messageBody)
 }
 
-func isConditionFlagAvailable(jsonData  map[string]interface{},alb_event events.ALBTargetGroupRequest,mainConfig Configuration) (string, int, bool, map[string]interface{}){
+func isConditionFlagAvailable(jsonData map[string]interface{}, alb_event events.ALBTargetGroupRequest, mainConfig Configuration) (string, int, bool, map[string]interface{}) {
 
 	var conditionJson map[string]interface{} = nil
-
 
 	if _, ok := jsonData["condition"]; !ok {
 
 		Logger("Condition key not found", false, fmt.Sprintf("%s", jsonData))
 		logMessage := LogMessage{
 			Message: "Condition key not found",
-			Error: fmt.Sprintf("%v",errors.New("Key not available")),
-			Status: false,
-			Event: alb_event.Body,
+			Error:   fmt.Sprintf("%v", errors.New("Key not available")),
+			Status:  false,
+			Event:   alb_event.Body,
 		}
 		err := handleDeadLetterQueue(logMessage, mainConfig.DeadLetterQueueName)
 		if err != nil {
-			return "Condition key not found as well as Dead letter queue send error",400,true,conditionJson
+			return "Condition key not found as well as Dead letter queue send error", 400, true, conditionJson
 			// return makeResponse("Condition key not found as well as Dead letter queue send error", headers, 400), nil
 
 		}
-		return "Condition key not found in payload. However, send message to Dead letter queue successfully delivered.",200,true,conditionJson
+		return "Condition key not found in payload. However, send message to Dead letter queue successfully delivered.", 200, true, conditionJson
 		// return makeResponse("Condition key not found in payload. However, send message to Dead letter queue successfully delivered.", headers, 200), nil
 	}
 
@@ -106,25 +106,26 @@ func isConditionFlagAvailable(jsonData  map[string]interface{},alb_event events.
 		Logger("Condition flag not found", false, fmt.Sprintf("%s", jsonData))
 		logMessage := LogMessage{
 			Message: "Condition flag value not found",
-			Error: fmt.Sprintf("%s","flag value not available"),
-			Status: false,
-			Event: alb_event.Body,
+			Error:   fmt.Sprintf("%s", "flag value not available"),
+			Status:  false,
+			Event:   alb_event.Body,
 		}
 		err := handleDeadLetterQueue(logMessage, mainConfig.DeadLetterQueueName)
 
 		if err != nil {
-			return "Condition flag not found as well as Dead letter queue send error",400,true,conditionJson
+			return "Condition flag not found as well as Dead letter queue send error", 400, true, conditionJson
 		}
-		return "Condition flag not found. However, send message to Dead letter queue successfully delivered.",200,true,conditionJson	}
+		return "Condition flag not found. However, send message to Dead letter queue successfully delivered.", 200, true, conditionJson
+	}
 
-	return "",200,false,conditionJson
+	return "", 200, false, conditionJson
 }
 
 // this is main handler function which will control SQS and firehose data tranfer based on condition
 func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyResponse, error) {
 
 	// providing correct response header format
-	headers = Headers{ContentType: "application/json"}
+	headers = map[string]string{"Content-Type": "application/json"}
 
 	region = os.Getenv("region")
 	// we are taking region and firehose delivery stream name from environment which is already setup in the lambda function
@@ -139,7 +140,7 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 
 		Logger("Data not found", false, "")
 
-		return makeResponse("Please provide a payload!", headers, 400), nil
+		return makeResponse("Please provide a payload!", headers, 200), nil
 
 	}
 
@@ -155,9 +156,9 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 
 		logMessage := LogMessage{
 			Message: "Payload Data is not valid",
-			Error: fmt.Sprintf("%v",err),
-			Status: false,
-			Event: alb_event.Body,
+			Error:   fmt.Sprintf("%v", err),
+			Status:  false,
+			Event:   alb_event.Body,
 		}
 
 		err := handleDeadLetterQueue(logMessage, mainConfig.DeadLetterQueueName)
@@ -171,18 +172,16 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 	}
 
 	if len(jsonData) == 0 {
-		return makeResponse("Payload is empty!", headers, 400), nil
+		return makeResponse("Payload is empty!", headers, 200), nil
 	}
 
+	status_msg, status_code, new_err, conditionJson := isConditionFlagAvailable(jsonData, alb_event, mainConfig)
 
-	status_msg, status_code, new_err, conditionJson := isConditionFlagAvailable(jsonData,alb_event,mainConfig)
-
-	if new_err{
+	if new_err {
 		return makeResponse(status_msg, headers, status_code), nil
 	}
 
 	flagValue = strings.ToUpper(fmt.Sprintf("%v", conditionJson["flag"]))
-
 
 	if flagValue == "A" {
 		return firehoseHandler(mainConfig, alb_event)
@@ -194,9 +193,9 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 
 		logMessage := LogMessage{
 			Message: "Condition flag not availabele",
-			Error: fmt.Sprintf("%v",errors.New("Condition flag not availabele")),
-			Status: false,
-			Event: alb_event.Body,
+			Error:   fmt.Sprintf("%v", errors.New("Condition flag not availabele")),
+			Status:  false,
+			Event:   alb_event.Body,
 		}
 		err := handleDeadLetterQueue(logMessage, mainConfig.DeadLetterQueueName)
 
@@ -210,8 +209,6 @@ func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyRes
 
 }
 
-
 func main() {
 	lambda.Start(Handler)
 }
-

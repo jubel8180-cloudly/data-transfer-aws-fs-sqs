@@ -11,16 +11,19 @@ resource "aws_security_group" "public" {
     to_port          = 22
     protocol         = "tcp"
     cidr_blocks      = [aws_vpc.head.cidr_block]
-  
+
   }
 
-  ingress {
-    description      = "http access"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  
+  dynamic "ingress" {
+    for_each = var.ingress_cidr_blocks
+    content {
+      description      = "http access"
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
+      cidr_blocks      = [ingress.value]
+    }
+
   }
 
   egress {
