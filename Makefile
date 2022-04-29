@@ -21,7 +21,10 @@ build-l2:
 build-l3:
 	cd lambda/kinesis_lambda_processor && go build -o main
 
-build-all: build-l1 build-l2 build-l3
+build-l4:
+	cd lambda/s3_event_for_metadata_and_checksum && go build -o main
+
+build-all: build-l1 build-l2 build-l3 build-l4
 
 
 

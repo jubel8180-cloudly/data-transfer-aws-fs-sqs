@@ -84,6 +84,37 @@ resource "aws_lambda_function" "kinesis_lambda_processor" {
 }
 
 
+data "archive_file" "s3_event_for_metadata_add" {
+  type        = "zip"
+  source_file = "${path.module}./../lambda/s3_event_for_metadata_and_checksum/main"
+  output_path = "${path.module}./../lambda/s3_event_for_metadata_and_checksum/main.zip"
+}
+
+# this lambda function for receiving event from dead letter queue
+resource "aws_lambda_function" "s3_event_for_metadata_add" {
+
+  filename      = "${path.module}./../lambda/s3_event_for_metadata_and_checksum/main.zip"
+  function_name = "${var.s3_event_function_name}"
+  role          = aws_iam_role.lambda_firehsoe_s3_role.arn
+  handler       = "main"
+
+  # source_code_hash = filebase64sha256("${path.module}./../lambda/receive_msg_from_dlq/main.zip")
+  source_code_hash = "${data.archive_file.s3_event_for_metadata_add.output_base64sha256}"
+
+
+  runtime = "go1.x"
+
+
+}
+
+
+resource "aws_lambda_permission" "allow_bucket1" {
+  statement_id  = "AllowExecutionFromS3Bucket1"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.s3_event_for_metadata_add.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.bucket.arn
+}
 
 
 

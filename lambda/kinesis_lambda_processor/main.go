@@ -25,6 +25,8 @@ func handleRequest(evnt events.KinesisFirehoseEvent) (events.KinesisFirehoseResp
 
 	var response events.KinesisFirehoseResponse
 
+	var header_list = make(map[string]string)
+
 	for _, record := range evnt.Records {
 
 		var transformedRecord events.KinesisFirehoseResponseRecord
@@ -45,7 +47,15 @@ func handleRequest(evnt events.KinesisFirehoseEvent) (events.KinesisFirehoseResp
 
 		transformedRecord.Metadata = metaData
 
-		csv_data := fmt.Sprintf("%s,%s,%s\n", eventRecordData.AppID, eventRecordData.DeviceID, eventRecordData.RequestID)
+		var csv_data string
+		app_id_key := eventRecordData.AppID
+
+		if _, ok := header_list[app_id_key]; !ok {
+			header_list[app_id_key] = app_id_key
+			csv_data = fmt.Sprintf("%s,%s,%s\n%s,%s,%s\n", "app_id", "device_id", "request_id", eventRecordData.AppID, eventRecordData.DeviceID, eventRecordData.RequestID)
+		} else {
+			csv_data = fmt.Sprintf("%s,%s,%s\n", eventRecordData.AppID, eventRecordData.DeviceID, eventRecordData.RequestID)
+		}
 
 		str := base64.StdEncoding.EncodeToString([]byte(csv_data))
 

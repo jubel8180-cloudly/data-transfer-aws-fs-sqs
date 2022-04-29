@@ -18,6 +18,10 @@ variable "receive_dlq_lambda_function_name" {
   default = "receive_message_from_dlq"
 }
 
+variable "s3_event_function_name" {
+  default = "metadata_and_checksum_add_with_s3_event"
+}
+
 variable "delivery_stream_name" {
   default = "new-s3-lambda-delivery-stream"
 }
