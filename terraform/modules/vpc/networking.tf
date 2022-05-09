@@ -6,7 +6,8 @@ resource "aws_vpc" "head" {
   instance_tenancy = "${var.tenancy}"
 
   tags = {
-    Name = "main"
+    Name = "main-${var.development_environment}"
+    Environment = var.development_environment
   }
 }
 
@@ -16,7 +17,9 @@ resource "aws_subnet" "head" {
   cidr_block = var.subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
   tags = {
-    Name = "Main"
+    Name = "Main-${var.development_environment}"
+    Environment = var.development_environment
+
   }
 }
 
@@ -25,7 +28,9 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.head.id
 
   tags = {
-    Name = "Main"
+    Name = "Main-${var.development_environment}"
+    Environment = var.development_environment
+
   }
 }
 
@@ -51,6 +56,8 @@ resource "aws_route_table" "main" {
 
   tags = {
     Name = "Main"
+    Environment = var.development_environment
+
   }
 }
 

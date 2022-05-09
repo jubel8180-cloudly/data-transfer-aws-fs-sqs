@@ -13,7 +13,9 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 5. If flag type Y send message to aws sqs
 6. Otherwise send message to aws dead lock.
 
-## AWS Configuration Setup Instruction using terraform
+# AWS infrastructure setup using terraform
+### AWS and Terraform initial setup in your local machine
+  ```
     - Initial Configuration
       - Please install AWS cli
         ~ url: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
@@ -21,28 +23,68 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
         ~ url: https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started
     - Add credential in AWS cli
       # provide your aws access key and secret key
+      # you will find your access key and secret key using this link
+        ~ url: https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/security_credentials?credentials=iam
+      - create your access key
+      - And apply below command in terminal
       $ aws configure
       - provide access key
       - provide secret key
 
-    - Need to configure first in Terraform
-      - Please go to the terraform/dev folder
+  ```
+
+### Configure terraform variable file
+```
+      - Please go to the terraform/application folder
       - go to the terraform.tfvars file and change some variable name
         - region = "please provide the region where you want to configure"
         - ingress_cidr_blocks = "Please provide your public ip address where from you can access application load balancer"
           - for example:
             # ingress_cidr_blocks = ["your_public_ip_1/32","your_public_ip_2/32"]
             - ingress_cidr_blocks = ["37.111.201.253/32","27.147.201.239/32"]
+```
+### Deploy AWS infrastructure using terraform apply command
+
+```
     - Apply terraform functionality
       - go to the terraform folder
-      - then go to dev folder
-      $ cd terraform/dev
+      - then go to application folder
+      $ cd terraform/application
 
-      # check any configuration is write or wrong
+      - Firstly you have to check your current terraform workspace
+      # check the workspace list
+      $ terraform workspace list
+        - workspace list should be: [ default, staging, prod]
+
+
+      # check which which workspace you are staying now
+      $ terraform workspace show
+        - if workspace is default then you can use it for development
+
+      # or change the workspace to staging
+      $ terraform workspace select staging
+
+      # or change the workspace to production
+      $ terraform workspace select prod
+
+      # check your current workspace again
+      $ terraform workspace show
+
+      # Now you can apply your terraform script in your selected workspace
+      # check any configuration is right or wrong
       $ terraform plan
 
       # Now deploy all configuration using this apply command
-      $ terraform apply
+
+      # if your workspace is default
+      $ terraform apply -var="environment=dev"
+
+      # or if your workspace is staging
+      $ terraform apply -var="environment=staging"
+
+      # or if your workspace is prod
+      $ terraform apply -var="environment=prod"
+
       - After applying terraform, you need to provide input.
          - s3 bucket name (name must be camel case or multiple word will be add with dash(-))
 
@@ -52,8 +94,8 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
          - After that every setup will be done for this project.
 
       Or you can apply terraform command with bucket name like,
-        # terraform apply -var="bucket_name=your-bucket-name"
-        $ terraform apply -var="bucket_name=new-firehose-data-storage"
+        # terraform apply -var="bucket_name=your-bucket-name" -var="environment=environment_name"
+        $ terraform apply -var="bucket_name=new-firehose-data-storage" -var="environment=dev"
 
         - Next terraform will ask you about aws changes. yes or no ?
           - please provide yes
@@ -62,10 +104,11 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 
      # Now you can show the all created services name using this command
      $ terraform output
+```
 
 ## Remember [Note]:
   - We used the region “ap-south-1”. So, every AWS feature will be available in this region.
-  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/dev directory and change the region and others service name.
+  - If you want to change the region or other service name, just go to the terraform.tfvars file in the     terraform/application directory and change the region and others service name.
 
 
 ## Test the full project
@@ -142,7 +185,8 @@ or you can copy load balancer dns link from the terminal after providing command
 
 ```
 
-## lambda function development process:
+
+# Lambda function development process:
 
 ```
 - go to the lambda directory

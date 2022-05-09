@@ -2,7 +2,11 @@
 variable "bucket_name" {
   type = string
   description = "Please provide the s3 bucket name"
+}
 
+variable "environment" {
+  type    = string
+  default = "dev"
 }
 
 variable "region"{
@@ -29,6 +33,7 @@ variable "delivery_stream_name" {
 variable "sqs_name"{
   default = "dev_sqs_main"
 }
+
 variable "dead_letter_queue_name"{
   default = "dev_dead_letter_queue_main"
 }
@@ -36,9 +41,6 @@ variable "load_balancer_name" {
   default = "lambda-firehose-s3-workflow-lb"
 }
 
-variable "development_environment" {
-  default = "dev"
-}
 variable "kinesis_processor_lambda_function_name" {
   default = "firehose_data_processor"
 }

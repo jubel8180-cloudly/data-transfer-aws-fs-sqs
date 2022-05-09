@@ -1,5 +1,5 @@
 resource "aws_lb_target_group" "main" {
-  name        = var.lb_target_group_names[0]
+  name        = "${var.lb_target_group_names[0]}-${var.development_environment}"
   target_type = var.lb_target_type # "lambda"
 }
 
@@ -8,7 +8,7 @@ resource "aws_lambda_permission" "with_lb" {
   action        = "lambda:InvokeFunction"
   function_name = var.target_ids_arn[0]
   principal     = "elasticloadbalancing.amazonaws.com"
-  source_arn    = aws_lb_target_group.main.arn 
+  source_arn    = aws_lb_target_group.main.arn
   # qualifier     = aws_lambda_alias.lambda_alias.name
 }
 
@@ -20,7 +20,7 @@ resource "aws_lb_target_group_attachment" "main" {
 }
 
 
-# # *****   START = second lb group ***** 
+# # *****   START = second lb group *****
 
 # resource "aws_lb_target_group" "sqs_group" {
 #   name        = var.lb_target_group_names[1]
@@ -32,7 +32,7 @@ resource "aws_lb_target_group_attachment" "main" {
 #   action        = "lambda:InvokeFunction"
 #   function_name = var.target_ids_arn[1]
 #   principal     = "elasticloadbalancing.amazonaws.com"
-#   source_arn    = aws_lb_target_group.sqs_group.arn 
+#   source_arn    = aws_lb_target_group.sqs_group.arn
 #   # qualifier     = aws_lambda_alias.lambda_alias.name
 # }
 
@@ -43,11 +43,11 @@ resource "aws_lb_target_group_attachment" "main" {
 #   depends_on       = [aws_lambda_permission.with_lb_sqs]
 # }
 
-# # *****   END = second lb group ***** 
+# # *****   END = second lb group *****
 
 
 resource "aws_lb" "main" {
-  name               = var.load_balancer_name
+  name               = "${var.load_balancer_name}-${var.development_environment}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = var.security_groups #[module.my_vpc.security_group]
@@ -59,7 +59,7 @@ resource "aws_lb" "main" {
     Environment = var.development_environment
   }
 
-  
+
 }
 
 resource "aws_lb_listener" "main" {

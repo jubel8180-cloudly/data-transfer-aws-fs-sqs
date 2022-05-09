@@ -24,3 +24,7 @@ variable "ingress_cidr_blocks" {
   type        = list(string)
   default     = []
 }
+
+variable "development_environment" {
+    type = string
+}

@@ -1,16 +1,16 @@
 .PHONY: apply
 
 apply:
-	cd terraform/dev && terraform apply
+	cd terraform/application && terraform apply
 
 destroy:
-	cd terraform/dev && terraform destroy
+	cd terraform/application && terraform destroy
 
 plan:
-	cd terraform/dev && terraform plan
+	cd terraform/application && terraform plan
 
 output:
-	cd terraform/dev && terraform output
+	cd terraform/application && terraform output
 
 build-l1:
 	cd lambda/data_send_to_firehose_and_sqs && go build -o main

@@ -1,7 +1,7 @@
 
 # create firehose stream
 resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
-  name        = var.delivery_stream_name
+  name        = "${var.delivery_stream_name}-${var.environment}"
   destination = "extended_s3"
 
   extended_s3_configuration {

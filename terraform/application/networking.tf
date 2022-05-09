@@ -8,4 +8,5 @@ module "my_vpc" {
     subnet_cidrs = ["172.31.0.0/20","172.31.16.0/20"]
     ingress_cidr_blocks = var.ingress_cidr_blocks
     availability_zones = ["${var.region}a","${var.region}b"]
+    development_environment = var.environment
 }

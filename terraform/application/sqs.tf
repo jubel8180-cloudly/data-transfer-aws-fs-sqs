@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "terraform_queue_deadletter" {
-  name                      = "${var.dead_letter_queue_name}"
+  name                      = "${var.dead_letter_queue_name}_${var.environment}"
   delay_seconds             = 10
   max_message_size          = 2048
   message_retention_seconds = 240
@@ -10,7 +10,7 @@ resource "aws_sqs_queue" "terraform_queue_deadletter" {
 }
 
 resource "aws_sqs_queue" "sqs_main" {
-  name                      = "${var.sqs_name}"
+  name                      = "${var.sqs_name}_${var.environment}"
   delay_seconds             = 10
   max_message_size          = 2048
   message_retention_seconds = 240

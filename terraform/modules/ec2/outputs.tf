@@ -8,3 +8,6 @@ output "aws_lb_dns_name" {
     value = aws_lb.main.dns_name
 }
 
+output "load_balancer_name"{
+  value = aws_lb.main.name
+}

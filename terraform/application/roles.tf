@@ -1,6 +1,6 @@
 # this role defined specially for lambda function
 resource "aws_iam_role" "lambda_firehsoe_s3_role" {
-  name = "lambda_firehsoe_s3_role"
+  name = "lambda_firehsoe_s3_role_${var.environment}"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -23,7 +23,7 @@ resource "aws_iam_role" "lambda_firehsoe_s3_role" {
 
 # creating s3 bucket policiy
 resource "aws_iam_policy" "policy" {
-  name        = "test-s3-policy"
+  name        = "test-s3-policy-${var.environment}"
   description = "A test policy"
 
   policy = <<EOF
@@ -85,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_execution_role" {
 
 # create firehose role for creating a firehose
 resource "aws_iam_role" "firehose_role" {
-  name = "firehose_test_role"
+  name = "firehose_test_role_${var.environment}"
 
   assume_role_policy = <<EOF
 {

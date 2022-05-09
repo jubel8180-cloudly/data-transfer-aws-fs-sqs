@@ -1,7 +1,7 @@
 
 
 resource "aws_security_group" "public" {
-  name        = "test-public-sg"
+  name        = "public-sg-${var.development_environment}"
   description = "Allow ALB TLS inbound traffic"
   vpc_id      = aws_vpc.head.id
 
@@ -37,6 +37,7 @@ resource "aws_security_group" "public" {
   tags = {
     Name = "test-public-sg"
     ManagedBy = "terraform"
+    Environment = var.development_environment
   }
 
 }

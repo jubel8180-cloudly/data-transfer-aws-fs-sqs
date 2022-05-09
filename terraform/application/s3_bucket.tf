@@ -1,7 +1,7 @@
 
 # this will create a single bucket
 resource "aws_s3_bucket" "bucket" {
-  bucket = var.bucket_name
+  bucket = "${var.bucket_name}-${var.environment}"
   force_destroy = true
 }
 
