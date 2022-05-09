@@ -6,6 +6,17 @@ apply:
 destroy:
 	cd terraform/application && terraform destroy
 
+destroy-dev:
+	cd terraform/application && terraform workspace select default && terraform destroy
+
+destroy-staging:
+	cd terraform/application && terraform workspace select staging && terraform destroy
+
+destroy-prod:
+	cd terraform/application && terraform workspace select prod && terraform destroy
+
+destroy-all: destroy-dev destroy-staging destroy-prod
+
 plan:
 	cd terraform/application && terraform plan
 
