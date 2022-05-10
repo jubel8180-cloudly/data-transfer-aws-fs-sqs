@@ -1,7 +1,7 @@
 
 
 resource "aws_security_group" "public" {
-  name        = "test-public-sg"
+  name        = "public-sg-${var.development_environment}"
   description = "Allow ALB TLS inbound traffic"
   vpc_id      = aws_vpc.head.id
 
@@ -11,16 +11,19 @@ resource "aws_security_group" "public" {
     to_port          = 22
     protocol         = "tcp"
     cidr_blocks      = [aws_vpc.head.cidr_block]
-  
+
   }
 
-  ingress {
-    description      = "http access"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  
+  dynamic "ingress" {
+    for_each = var.ingress_cidr_blocks
+    content {
+      description      = "http access"
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
+      cidr_blocks      = [ingress.value]
+    }
+
   }
 
   egress {
@@ -34,6 +37,7 @@ resource "aws_security_group" "public" {
   tags = {
     Name = "test-public-sg"
     ManagedBy = "terraform"
+    Environment = var.development_environment
   }
 
 }

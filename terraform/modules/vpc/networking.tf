@@ -6,7 +6,8 @@ resource "aws_vpc" "head" {
   instance_tenancy = "${var.tenancy}"
 
   tags = {
-    Name = "main"
+    Name = "main-${var.development_environment}"
+    Environment = var.development_environment
   }
 }
 
@@ -16,7 +17,9 @@ resource "aws_subnet" "head" {
   cidr_block = var.subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
   tags = {
-    Name = "Main"
+    Name = "Main-${var.development_environment}"
+    Environment = var.development_environment
+
   }
 }
 
@@ -25,7 +28,9 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.head.id
 
   tags = {
-    Name = "Main"
+    Name = "Main-${var.development_environment}"
+    Environment = var.development_environment
+
   }
 }
 
@@ -50,7 +55,9 @@ resource "aws_route_table" "main" {
   }
 
   tags = {
-    Name = "Main"
+    Name = "Main-${var.development_environment}"
+    Environment = var.development_environment
+
   }
 }
 
@@ -59,14 +66,3 @@ resource "aws_main_route_table_association" "a" {
   route_table_id = aws_route_table.main.id
 }
 
-# resource "aws_route_table_association" "b" {
-#   gateway_id     = aws_internet_gateway.gw.id
-#   route_table_id = aws_route_table.main.id
-# }
-
-# resource "aws_route" "main" {
-#   route_table_id            = aws_route_table.main.id
-#   destination_cidr_block    = "0.0.0.0/0"
-#   vpc_peering_connection_id = "pcx-45ff3dc1"
-#   depends_on                = [aws_route_table.main]
-# }
