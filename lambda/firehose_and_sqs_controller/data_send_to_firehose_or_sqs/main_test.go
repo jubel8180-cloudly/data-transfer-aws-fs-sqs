@@ -32,6 +32,25 @@ func TestHandler(t *testing.T) {
 			request: events.ALBTargetGroupRequest{Body: ""},
 			expect:  "{\"msg\":\"Please provide a payload!\",\"success\":true}",
 			err:     nil,
+		}, {
+			// Test that the handler responds ErrNameNotProvided
+			// when no name is provided in the HTTP body
+			context: context.TODO(),
+			request: events.ALBTargetGroupRequest{Body: `{
+				"condition": {
+				 "flag": "Y"
+				 },
+				 "records": {
+					 "body": "All provider data collected successfully",
+					 "attributes": {
+						 "status": "success",
+						 "provider": "dynata"
+
+					 }
+				 }
+			 }`},
+			expect: "{\"msg\":\"Got an error while trying to get queue url as well as Dead letter queue\",\"success\":false}",
+			err:    nil,
 		},
 	}
 
