@@ -1,7 +1,7 @@
 .PHONY: apply
 
 apply:
-	cd terraform/application && terraform apply
+	cd terraform/application && terraform workspace select default && terraform apply
 
 destroy:
 	cd terraform/application && terraform destroy
