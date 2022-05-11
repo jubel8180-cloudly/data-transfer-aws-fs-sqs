@@ -1,4 +1,5 @@
-# firehose File Creation from Lambda trigger
+# Serverless Application
+## Data processing through firehose and sqs using lambda function
 
 
 ## About <a name = "about"></a>
