@@ -51,15 +51,21 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       - then go to application folder
       $ cd terraform/application
 
-      - Firstly you have to check your current terraform workspace
-      # check the workspace list
-      $ terraform workspace list
-        - workspace list should be: [ default, staging, prod]
-
-
-      # check which which workspace you are staying now
+      - Now check your current terraform workspace
       $ terraform workspace show
-        - if workspace is default then you can use it for development
+      - you are staying default workspace now
+
+      # check the other workspace list
+      $ terraform workspace list
+      - if you don't find any other workspace, you can create new workspace for staging and production
+      $ terraform workspace new staging
+      $ terraform workspace new prod
+
+      # again show the terraform workspace
+      $ terraform workspace list
+
+      # change the workspace to default,
+      $ terraform workspace select default [ default will be used as a development workspace]
 
       # or change the workspace to staging
       $ terraform workspace select staging
@@ -67,10 +73,15 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
       # or change the workspace to production
       $ terraform workspace select prod
 
-      # check your current workspace again
+
+      # finally, check which workspace you are staying now
       $ terraform workspace show
+        - if workspace is default then you can use it for development
+
 
       # Now you can apply your terraform script in your selected workspace
+      $ terraform init
+
       # check any configuration is right or wrong
       $ terraform plan
 
@@ -113,7 +124,7 @@ This project will work for sending data to firehose or SQS. Firehose will put ob
 
 ## Test the full project
 - Now go to the application load balancer and copy the load balancer dns link
-or you can copy load balancer dns link from the terminal after providing command [$ terraform output]
+  or you can copy load balancer dns link from the terminal after providing command [$ terraform output]
 - now test the code and check the requirements
   - copy the url and provide condition in payload "flag": "A" for firehose or "flag": "Y" for sqs
   - POST: Url link like, lb-firehose-sqs-dev-1432623056.ap-south-1.elb.amazonaws.com
