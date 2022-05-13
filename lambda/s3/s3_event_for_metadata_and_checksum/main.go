@@ -16,12 +16,13 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-func handler(ctx context.Context, s3Event events.S3Event) {
+func Handler(ctx context.Context, s3Event events.S3Event) (string, error) {
 
 	var checkSumAlgo = "sha256"
 
 	svc := s3.New(session.New())
-
+	var success bool = false
+	var err_global error
 	for _, record := range s3Event.Records {
 		s3_obj := record.S3
 		bucket_name := fmt.Sprintf("%v", s3_obj.Bucket.Name)
@@ -81,19 +82,32 @@ func handler(ctx context.Context, s3Event events.S3Event) {
 		resp, err := svc.CopyObject(copyInput)
 
 		if err != nil {
-			fmt.Println("SUCCESS: TRUE")
-			log.Println("Add metadata and checksum successfully")
+
+			success = false
+			err_global = err
+
 		} else {
-			fmt.Println("SUCCESS: FALSE")
-			log.Println("metadata added failed")
+
+			success = true
+			err_global = err
 		}
 
-		fmt.Println(resp)
+		log.Println(resp)
 
+	}
+
+	if success {
+		log.Println("SUCCESS: TRUE")
+		log.Println("Add metadata and checksum successfully")
+		return "add metadata and checksum successfully", err_global
+	} else {
+		log.Println("SUCCESS: FALSE")
+		log.Println("metadata added failed")
+		return "metadata added failed", err_global
 	}
 }
 
 func main() {
 	// Make the handler available for Remote Procedure Call by AWS Lambda
-	lambda.Start(handler)
+	lambda.Start(Handler)
 }

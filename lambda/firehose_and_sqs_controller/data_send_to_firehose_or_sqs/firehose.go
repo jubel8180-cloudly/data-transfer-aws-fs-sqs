@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
@@ -9,6 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/firehose"
+)
+
+var (
+	// ErrNameNotProvided is thrown when a name is not provided
+	ErrorDeadLetterQueue = errors.New("data send error to dead letter queue")
 )
 
 //  if we want to work with aws. Then we need to initializes a session using this function
@@ -27,7 +33,6 @@ func createConfig() *aws.Config {
 
 	return config
 }
-
 
 func firehosePutRecordBatch(svc *firehose.Firehose, mainConfig Configuration, eventData []JsonEvent) (*firehose.PutRecordBatchOutput, error) {
 
@@ -56,7 +61,7 @@ func firehosePutRecordBatch(svc *firehose.Firehose, mainConfig Configuration, ev
 		log.Printf("PutRecordBatch: %v\n", resp)
 	}
 
-	return resp, nil
+	return resp, err
 
 }
 
@@ -84,7 +89,7 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 	if err != nil {
 		logMessage := LogMessage{
 			Message: "Event body unmarshal error",
-			Error:   fmt.Sprintf("%v",err),
+			Error:   fmt.Sprintf("%v", err),
 			Status:  false,
 			Event:   alb_event.Body,
 		}
@@ -107,7 +112,7 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 	if err != nil {
 		logMessage := LogMessage{
 			Message: "Data records is not valid",
-			Error:   fmt.Sprintf("%v",err),
+			Error:   fmt.Sprintf("%v", err),
 			Status:  false,
 			Event:   alb_event.Body,
 		}
@@ -137,27 +142,26 @@ func firehoseHandler(mainConfig Configuration, alb_event events.ALBTargetGroupRe
 
 		logMessage := LogMessage{
 			Message: "Got an error while trying to send message to queue",
-			Error:   fmt.Sprintf("%v",err),
+			Error:   fmt.Sprintf("%v", err),
 			Status:  false,
 			Event:   alb_event.Body,
 		}
 		err := handleDeadLetterQueue(logMessage, mainConfig.DeadLetterQueueName)
 
 		if err != nil {
-			return makeResponse("Json Data format error as well as Dead letter queue send error", headers, 400), nil
+			return makeResponse("Data send error to firehose as well as Dead letter queue send error", headers, 400), ErrorDeadLetterQueue
 		}
 
 		return makeResponse("Data send error to firehose. However, send message to Dead letter queue successfully delivered.", headers, 200), nil
+	} else {
+		Logger("Firehose Data Transfer and File created successfully", true, string(jsonString))
+
+		fmt.Println(result.RequestResponses)
+
+		// make success response
+		response := makeResponse("Firehose data transfer and file created successfully done.", headers, 200)
+
+		return response, err
 	}
 
-	log.Println("Firehose Data Transfer and File created successfully")
-
-	Logger("Firehose Data Transfer and File created successfully", true, string(jsonString))
-
-	fmt.Println(result.RequestResponses)
-
-	// make success response
-	response := makeResponse("Firehose data transfer and file created successfully done.", headers, 200)
-
-	return response, err
 }

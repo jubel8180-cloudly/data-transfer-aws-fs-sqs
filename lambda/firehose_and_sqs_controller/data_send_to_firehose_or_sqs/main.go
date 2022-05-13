@@ -18,6 +18,11 @@ var region string
 var flagValue string = ""
 var headers map[string]string
 
+var (
+	// ErrNameNotProvided is thrown when a name is not provided
+	ErrNameNotProvided = errors.New("no name was provided in the HTTP body")
+)
+
 type LogMessage struct {
 	Message string
 	Error   string
@@ -122,7 +127,7 @@ func isConditionFlagAvailable(jsonData map[string]interface{}, alb_event events.
 }
 
 // this is main handler function which will control SQS and firehose data tranfer based on condition
-func Handler(ctx context.Context, alb_event events.ALBTargetGroupRequest) (MyResponse, error) {
+func Handler(ctx context.Context, alb_event events.c) (MyResponse, error) {
 
 	// providing correct response header format
 	headers = map[string]string{"Content-Type": "application/json"}
